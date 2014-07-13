@@ -5,9 +5,18 @@
 - Ruby 2.1.2
 
 ## Server setup
-- build mongo indexes
+Build mongo indexes:
+
+`rake db:mongoid:create_indexes`
+
+Import data:
+
+`rake players:import player_stats:import`.
 
 ## Deployment to Heroku
-- build mongo indexes
+
+Build mongo indexes:
+
+`heroku run rake db:mongoid:create_indexes`
 
 ## Client script usage
