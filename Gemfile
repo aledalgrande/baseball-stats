@@ -11,9 +11,10 @@ gem 'mongoid', '~> 4.0.0'
 # gem 'turbolinks', '~> 2.2.2'
 
 group :development do
-  gem 'spring'
+  gem 'spring', '~> 1.1.3'
 end
 
 group :test do
-  gem 'rspec-rails'
+  gem 'rspec-rails', '~> 3.0.1'
+  gem 'database_cleaner', '~> 1.3.0'
 end
