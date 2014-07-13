@@ -7,11 +7,13 @@ class Player
   field :first_name, type: String
   field :last_name, type: String
   field :year_of_birth, type: Integer
-  field :player_id, type: String
+  field :external_player_id, type: String
 
-  validate :player_id, presence: true
+  has_many :player_stats
 
-  index({ player_id: 1 }, { background: true, unique: true })
+  validate :external_player_id, presence: true
+
+  index({ external_player_id: 1 }, { background: true, unique: true })
 
   def self.import(filename)
     CSV.foreach(filename, headers: true) do |row|
@@ -20,9 +22,10 @@ class Player
       last_name = row['nameLast']
       year_of_birth = row['birthYear']
 
-      return if check_invalid_characters(player_id, first_name, last_name, year_of_birth)
+      return unless has_valid_characters?(player_id, first_name, last_name, year_of_birth)
 
-      player = Player.collection.find(player_id: player_id).upsert(first_name: first_name, last_name: last_name, year_of_birth: year_of_birth, player_id: player_id)
+      options = { upsert: true, new: true }
+      player = Player.where(external_player_id: player_id).find_and_modify({ first_name: first_name, last_name: last_name, year_of_birth: year_of_birth, external_player_id: player_id }, options)
     end
   end
 end

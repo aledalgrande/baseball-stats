@@ -2,14 +2,14 @@ module CharacterCheck
   extend ActiveSupport::Concern
 
   module ClassMethods
-    def check_invalid_characters(*strings)
+    def has_valid_characters?(*strings)
       encoding_options = { invalid: :replace, undef: :replace, replace: '', universal_newline: true }
 
       strings.each do |string|
-        return true if string.encode(Encoding.find('ASCII'), encoding_options).blank?
+        return false if !string.blank? && string.encode(Encoding.find('ASCII'), encoding_options).blank?
       end
 
-      return false
+      return true
     end
   end
 end
