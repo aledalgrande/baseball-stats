@@ -110,4 +110,30 @@ RSpec.describe PlayerStat, :type => :model do
       end
     end
   end
+
+  context "#most_improved_batting_average" do
+    let(:players) { create_list(:player, 2) }
+
+    subject { PlayerStat.most_improved_batting_average(2009, 2010) }
+
+    context "when there are players with 200 at-bats or more" do
+      let!(:player_stats) { [create(:player_stat, year: 2009, hits: 10, at_bats: 203, player_id: players[0].id), create(:player_stat, year: 2009, hits: 18, at_bats: 210, player_id: players[1].id), create(:player_stat, year: 2010, hits: 10, at_bats: 222, player_id: players[0].id), create(:player_stat, year: 2010, hits: 27, at_bats: 210, player_id: players[1].id)] }
+
+      it "should return the highest batting average improvement with the player" do
+        best = subject
+        best[1] = best[1].round(1)
+        expect(best).to eq([players[1], 50.0])
+      end
+    end
+
+    context "when there are players with less than 200 at-bats" do
+      let!(:player_stats) { [create(:player_stat, year: 2009, hits: 10, at_bats: 190, player_id: players[0].id), create(:player_stat, year: 2009, hits: 18, at_bats: 210, player_id: players[1].id), create(:player_stat, year: 2010, hits: 10, at_bats: 222, player_id: players[0].id), create(:player_stat, year: 2010, hits: 27, at_bats: 210, player_id: players[1].id)] }
+
+      it "should not include those players" do
+        best = subject
+        best[1] = best[1].round(1)
+        expect(best).to eq([players[1], 50.0])
+      end
+    end
+  end
 end

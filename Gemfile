@@ -15,6 +15,7 @@ group :development do
 end
 
 group :test do
-  gem 'rspec-rails', '~> 3.0.1'
   gem 'database_cleaner', '~> 1.3.0'
+  gem 'factory_girl_rails', '~> 4.4.1'
+  gem 'rspec-rails', '~> 3.0.1'
 end

@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+
+  resources :player_stats do
+    collection do
+      get 'most_improved_batting_average'
+    end
+  end
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

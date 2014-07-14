@@ -17,6 +17,7 @@ class PlayerStat
   validate player_id: 1, year: 1, team_id: 1, presence: true
 
   index({ player_id: 1, team_id: 1, year: 1 }, { background: true, unique: true })
+  index({ year: 1, at_bats: 1, player_id: 1 }, { background: true })
 
   def self.import(filename)
     import_csv(filename) do |row, db_options|
@@ -51,5 +52,43 @@ class PlayerStat
 
       player_stat = PlayerStat.where(player_id: player.id, team_id: team.id, year: year).find_and_modify(attributes, db_options)
     end
+  end
+
+  def self.most_improved_batting_average(year_start, year_end)
+    player_stats_2009 = PlayerStat.where(year: 2009).gte(at_bats: 200)
+    player_stat_groups = player_stats_2009.group_by { |player_stat| player_stat.player_id }
+    player_stats_2010 = PlayerStat.where(year: 2010).gte(at_bats: 200).in(player_id: player_stat_groups.keys)
+
+    player_stats_2010.each do |player_stat|
+      player_id = player_stat.player_id
+      player_stat_groups[player_id] ||= []
+      player_stat_groups[player_id] << player_stat
+    end
+
+    best_improvement = 0  # 0%
+    player_id_best_improvement = nil
+
+    player_stat_groups.each do |player_id, player_stat_group|
+      next if player_stat_group.size < 2
+
+      player_stat_2009 = player_stat_group[0]
+      player_stat_2010 = player_stat_group[1]
+      avg_2009 = player_stat_2009.hits * 1.0 / player_stat_2009.at_bats
+      avg_2010 = player_stat_2010.hits * 1.0 / player_stat_2010.at_bats
+      improvement = (avg_2010 / avg_2009 - 1) * 100
+
+      if improvement > best_improvement
+        best_improvement = improvement
+        player_id_best_improvement = player_id
+      end
+    end
+
+    if player_id_best_improvement
+      player = Player.find(player_id_best_improvement)
+
+      return [player, best_improvement]
+    end
+
+    return [nil, 0]
   end
 end
