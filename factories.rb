@@ -18,5 +18,10 @@ FactoryGirl.define do
 
   factory :team do
     external_team_id 'NYA'
+    association :league
+  end
+
+  factory :league do
+    external_league_id 'NL'
   end
 end

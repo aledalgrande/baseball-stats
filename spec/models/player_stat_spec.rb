@@ -152,7 +152,7 @@ RSpec.describe PlayerStat, :type => :model do
         player_stats_2007_team1 = [player_stats[0], player_stats[1]]
         
         slugging_percentages = player_stats_2007_team1.map do |ps|
-          { "#{ps.player.first_name}#{ps.player.last_name}" => (ps.hits - ps.doubles - ps.triples - ps.home_runs + 2 * ps.doubles + 3 * ps.triples + 4 * ps.home_runs) * 1.0 / ps.at_bats * 100 }
+          { "#{ps.player.first_name} #{ps.player.last_name}" => (ps.hits - ps.doubles - ps.triples - ps.home_runs + 2 * ps.doubles + 3 * ps.triples + 4 * ps.home_runs) * 1.0 / ps.at_bats * 100 }
         end.inject(&:merge)
 
         expect(subject).to eq(slugging_percentages)
@@ -182,6 +182,62 @@ RSpec.describe PlayerStat, :type => :model do
 
       it "should return an empty result" do
         expect(subject).to eq([])
+      end
+    end
+  end
+
+  context "triple crown" do
+    subject { PlayerStat.triple_crown(year, league) }
+
+    context "when the year is not valid" do
+      let(:year) { 1884 }
+      let(:league) { 'NL' }
+
+      it "should return a no-winner" do
+        expect(subject).to eq(nil)
+      end
+    end
+
+    context "when the league is not valid" do
+      let(:year) { 1884 }
+      let(:league) { 'HG' }
+
+      it "should return a no-winner" do
+        expect(subject).to eq(nil)
+      end
+    end
+
+    context "when the player has less than 400 at-bats" do
+      let!(:player_stats) { [create(:player_stat, at_bats: 300, year: 2012, hits: 200, home_runs: 14, runs_batted_in: 50)] }
+      let(:year) { 2012 }
+      let(:league) { 'NL' }
+
+      it "should not be included in the count" do
+        expect(subject).to eq(nil)
+      end
+    end
+
+    context "when the player has 400 at-bats or more" do
+      let(:year) { 2012 }
+      let(:league) { 'AL' }
+      let(:players) { create_list(:player, 2) }
+      let(:al) { create(:league, external_league_id: 'AL') }
+      let(:teams) { create_list(:team, 2, league_id: al.id) }
+
+      context "when there is a triple crown" do
+        let!(:player_stats) { [create(:player_stat, player: players[0], team: teams[0], year: 2012, at_bats: 500, hits: 200, home_runs: 14, runs_batted_in: 50), create(:player_stat, player: players[1], team: teams[1], year: 2012, at_bats: 500, hits: 190, home_runs: 14, runs_batted_in: 50), create(:player_stat, player: players[1], team: teams[1], year: 2012, at_bats: 2, hits: 1, home_runs: 14, runs_batted_in: 50)] }
+
+        it "should return the right winner" do
+          expect(subject).to eq(players[0])
+        end
+      end
+
+      context "when there isn't a triple crown" do
+        let!(:player_stats) { [create(:player_stat, player: players[0], team: teams[0], year: 2012, at_bats: 500, hits: 200, home_runs: 14, runs_batted_in: 50), create(:player_stat, player: players[1], team: teams[1], year: 2012, at_bats: 500, hits: 190, home_runs: 14, runs_batted_in: 52), create(:player_stat, player: players[1], team: teams[1], year: 2012, at_bats: 2, hits: 7, home_runs: 0, runs_batted_in: 5)] }
+
+        it "should return a no-winner" do
+          expect(subject).to eq(nil)
+        end
       end
     end
   end

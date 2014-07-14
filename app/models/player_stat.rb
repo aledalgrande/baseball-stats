@@ -73,8 +73,8 @@ class PlayerStat
 
       player_stat_2009 = player_stat_group[0]
       player_stat_2010 = player_stat_group[1]
-      avg_2009 = player_stat_2009.hits * 1.0 / player_stat_2009.at_bats
-      avg_2010 = player_stat_2010.hits * 1.0 / player_stat_2010.at_bats
+      avg_2009 = batting_average(player_stat_2009.hits, player_stat_2009.at_bats)
+      avg_2010 = batting_average(player_stat_2010.hits, player_stat_2010.at_bats)
       improvement = (avg_2010 / avg_2009 - 1) * 100
 
       if improvement > best_improvement
@@ -96,14 +96,38 @@ class PlayerStat
     external_team_id.upcase!
     team = Team.where(external_team_id: external_team_id).first
     return [] unless team
-    team_player_stats = PlayerStat.where(team_id: team.id, year: year)
+    team_player_stats = PlayerStat.where(team_id: team.id, year: year).to_a
     return [] if team_player_stats.empty?
     players = Player.in(_id: team_player_stats.map(&:player_id)).group_by { |pl| pl.id }
 
     team_player_stats.map do |ps|
       player = players[ps.player_id].first
+      slugging_percentage = (ps.hits - ps.doubles - ps.triples - ps.home_runs + 2 * ps.doubles + 3 * ps.triples + 4 * ps.home_runs) * 1.0 / ps.at_bats * 100
+      slugging_percentage = 0.0 if slugging_percentage.nan?
 
-      { "#{player.first_name}#{player.last_name}" => (ps.hits - ps.doubles - ps.triples - ps.home_runs + 2 * ps.doubles + 3 * ps.triples + 4 * ps.home_runs) * 1.0 / ps.at_bats * 100 }
+      { "#{player.first_name} #{player.last_name}" => slugging_percentage }
     end.inject(&:merge)
+  end
+
+  def self.triple_crown(year, external_league_id)
+    external_league_id.upcase!
+    league = League.where(external_league_id: external_league_id).first
+    return unless league
+    league_teams = Team.where(league_id: league.id).to_a
+    year_player_stats = PlayerStat.where(year: year).in(team_id: league_teams).gte(at_bats: 400).to_a
+    return if year_player_stats.empty?
+    highest_batting_average_player_id = year_player_stats.map { |ps| [ps.player_id, -batting_average(ps.hits, ps.at_bats)] }.sort_by { |stat| stat[1] }.first[0]
+    highest_home_runs_player_id = year_player_stats.map { |ps| [ps.player_id, -ps.home_runs] }.sort_by { |stat| stat[1] }.first[0]
+    highest_runs_batted_in_player_id = year_player_stats.map { |ps| [ps.player_id, -ps.runs_batted_in] }.sort_by { |stat| stat[1] }.first[0]
+
+    if (highest_batting_average_player_id == highest_home_runs_player_id && highest_home_runs_player_id == highest_runs_batted_in_player_id)
+      return Player.find(highest_runs_batted_in_player_id)
+    end
+  end
+
+  private
+  def self.batting_average(hits, at_bats)
+    return 0 if at_bats == 0
+    hits * 1.0 / at_bats
   end
 end
