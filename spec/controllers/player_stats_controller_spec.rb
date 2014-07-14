@@ -1,6 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe PlayerStatsController, :type => :controller do
+  before(:each) do
+    user = 'dhh'
+    pw = 'secret'
+    request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(user,pw)
+  end
+
   context "GET most_improved_batting_average" do
     subject { get 'most_improved_batting_average', year_start: 2009, year_end: 2010 }
 

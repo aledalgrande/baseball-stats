@@ -1,4 +1,6 @@
 class PlayerStatsController < ApplicationController
+  http_basic_authenticate_with name: "dhh", password: "secret"
+
   def most_improved_batting_average
     result = PlayerStat.most_improved_batting_average(params[:year_start], params[:year_end])
     render json: { most_improved_batting_average: { player: result[0], average: result[1] } }.to_json
