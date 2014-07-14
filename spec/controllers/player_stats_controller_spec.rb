@@ -16,9 +16,10 @@ RSpec.describe PlayerStatsController, :type => :controller do
     end
 
     it "should return the most improved batting average" do
-      expect(PlayerStat).to receive(:most_improved_batting_average).with('2009', '2010').and_return(['Joe Santana', 0.300])
+      player = create(:player)
+      expect(PlayerStat).to receive(:most_improved_batting_average).with('2009', '2010').and_return([player, 0.300])
       subject
-      expect(response.body).to eq({ most_improved_batting_average: { player: 'Joe Santana', average: 0.300 } }.to_json)
+      expect(response.body).to eq({ most_improved_batting_average: { player: player.full_name, average: 0.300 } }.to_json)
     end
   end
 
@@ -49,7 +50,7 @@ RSpec.describe PlayerStatsController, :type => :controller do
       player = create(:player)
       expect(PlayerStat).to receive(:triple_crown).with('2012', 'AL').and_return(player)
       subject
-      expect(response.body).to eq({ triple_crown: { player: "#{player.first_name} #{player.last_name}" } }.to_json)
+      expect(response.body).to eq({ triple_crown: { player: player.full_name } }.to_json)
     end
 
     context "when there is no winner" do

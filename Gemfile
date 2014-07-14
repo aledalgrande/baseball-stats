@@ -13,6 +13,7 @@ gem 'mongoid', '~> 4.0.0'
 group :development do
   gem 'spring', '~> 1.1.3'
   gem 'pry-rails', '~> 0.3.2'
+  gem 'commander', '~> 4.2.0'
 end
 
 group :test do

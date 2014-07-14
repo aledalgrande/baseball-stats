@@ -33,4 +33,8 @@ class Player
       Player.where(external_player_id: player_id).find_and_modify(attributes, db_options)
     end
   end
+
+  def full_name
+    "#{self.first_name} #{self.last_name}"
+  end
 end

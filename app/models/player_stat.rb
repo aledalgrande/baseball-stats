@@ -104,10 +104,10 @@ class PlayerStat
 
     team_player_stats.map do |ps|
       player = players[ps.player_id].first
-      slugging_percentage = (ps.hits - ps.doubles - ps.triples - ps.home_runs + 2 * ps.doubles + 3 * ps.triples + 4 * ps.home_runs) * 1.0 / ps.at_bats * 100
+      slugging_percentage = (ps.hits - ps.doubles - ps.triples - ps.home_runs + 2 * ps.doubles + 3 * ps.triples + 4 * ps.home_runs) * 1.0 / ps.at_bats
       slugging_percentage = 0.0 if slugging_percentage.nan?
 
-      { "#{player.first_name} #{player.last_name}" => slugging_percentage }
+      { player.full_name => slugging_percentage }
     end.inject(&:merge)
   end
 

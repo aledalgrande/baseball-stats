@@ -1,9 +1,11 @@
 class PlayerStatsController < ApplicationController
-  http_basic_authenticate_with name: "dhh", password: "secret"
+  http_basic_authenticate_with name: ENV['BASEBALL_STATS_USERNAME'], password: ENV['BASEBALL_STATS_PASSWORD']
 
   def most_improved_batting_average
     result = PlayerStat.most_improved_batting_average(params[:year_start], params[:year_end])
-    render json: { most_improved_batting_average: { player: result[0], average: result[1] } }.to_json
+    player = result[0]
+    player_name = player ? player.full_name : ''
+    render json: { most_improved_batting_average: { player: player_name, average: result[1] } }.to_json
   end
 
   def team_slugging_percentage
@@ -13,7 +15,7 @@ class PlayerStatsController < ApplicationController
 
   def triple_crown
     player = PlayerStat.triple_crown(params[:year], params[:league])
-    player_name = player ? "#{player.first_name} #{player.last_name}" : "(No winner)"
+    player_name = player ? player.full_name : "(No winner)"
     render json: { triple_crown: { player: player_name } }.to_json
   end
 end

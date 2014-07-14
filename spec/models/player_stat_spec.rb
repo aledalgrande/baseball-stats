@@ -152,7 +152,7 @@ RSpec.describe PlayerStat, :type => :model do
         player_stats_2007_team1 = [player_stats[0], player_stats[1]]
         
         slugging_percentages = player_stats_2007_team1.map do |ps|
-          { "#{ps.player.first_name} #{ps.player.last_name}" => (ps.hits - ps.doubles - ps.triples - ps.home_runs + 2 * ps.doubles + 3 * ps.triples + 4 * ps.home_runs) * 1.0 / ps.at_bats * 100 }
+          { "#{ps.player.first_name} #{ps.player.last_name}" => (ps.hits - ps.doubles - ps.triples - ps.home_runs + 2 * ps.doubles + 3 * ps.triples + 4 * ps.home_runs) * 1.0 / ps.at_bats }
         end.inject(&:merge)
 
         expect(subject).to eq(slugging_percentages)
