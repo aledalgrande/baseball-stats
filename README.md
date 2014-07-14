@@ -11,6 +11,10 @@ Start mongo:
 
 `mongod`
 
+Install gems:
+
+`bundle install`
+
 Build mongo indexes:
 
 `rake db:mongoid:create_indexes`
@@ -18,10 +22,6 @@ Build mongo indexes:
 Import data:
 
 `rake players:import player_stats:import`
-
-Install gems:
-
-`bundle install`
 
 Start server with:
 
