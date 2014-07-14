@@ -3,6 +3,8 @@ Rails.application.routes.draw do
   resources :player_stats do
     collection do
       get 'most_improved_batting_average'
+      get 'team_slugging_percentage'
+      get 'triple_crown'
     end
   end
   # The priority is based upon order of creation: first created -> highest priority.

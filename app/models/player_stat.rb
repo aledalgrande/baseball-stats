@@ -55,9 +55,11 @@ class PlayerStat
   end
 
   def self.most_improved_batting_average(year_start, year_end)
-    player_stats_2009 = PlayerStat.where(year: 2009).gte(at_bats: 200)
+    year_start = year_start.to_i
+    year_end = year_end.to_i
+    player_stats_2009 = PlayerStat.where(year: year_start).gte(at_bats: 200)
     player_stat_groups = player_stats_2009.group_by { |player_stat| player_stat.player_id }
-    player_stats_2010 = PlayerStat.where(year: 2010).gte(at_bats: 200).in(player_id: player_stat_groups.keys)
+    player_stats_2010 = PlayerStat.where(year: year_end).gte(at_bats: 200).in(player_id: player_stat_groups.keys)
 
     player_stats_2010.each do |player_stat|
       player_id = player_stat.player_id
