@@ -1,7 +1,7 @@
 # Baseball Stats
 
 ## Server requirements
-- MongoDB >= 2.6
+- MongoDB >= 2.4
 - Ruby 2.1.2
 
 ## Server setup

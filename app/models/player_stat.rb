@@ -91,4 +91,19 @@ class PlayerStat
 
     return [nil, 0]
   end
+
+  def self.team_slugging_percentage(external_team_id, year)
+    external_team_id.upcase!
+    team = Team.where(external_team_id: external_team_id).first
+    return [] unless team
+    team_player_stats = PlayerStat.where(team_id: team.id, year: year)
+    return [] if team_player_stats.empty?
+    players = Player.in(_id: team_player_stats.map(&:player_id)).group_by { |pl| pl.id }
+
+    team_player_stats.map do |ps|
+      player = players[ps.player_id].first
+
+      { "#{player.first_name}#{player.last_name}" => (ps.hits - ps.doubles - ps.triples - ps.home_runs + 2 * ps.doubles + 3 * ps.triples + 4 * ps.home_runs) * 1.0 / ps.at_bats * 100 }
+    end.inject(&:merge)
+  end
 end
